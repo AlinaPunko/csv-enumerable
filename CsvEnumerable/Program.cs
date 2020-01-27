@@ -9,19 +9,11 @@ namespace CsvEnumerable
         {
             using var reader = new StreamReader(@"text.csv");
             {
-                try
-                {
-                    CsvEnumerable<CsvRecord> records = new CsvEnumerable<CsvRecord>(reader);
+                var records = new CsvEnumerable<CsvRecord>(reader);
 
-                    foreach (var record in records)
-                    {
-                        Console.WriteLine(record);
-                    }
-
-                }
-                catch (Exception e)
+                foreach (var record in records)
                 {
-                    Console.WriteLine(e.Message);
+                    Console.WriteLine(record);
                 }
             }
         }
