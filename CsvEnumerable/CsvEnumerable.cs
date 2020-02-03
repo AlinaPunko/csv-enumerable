@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 
 namespace CsvEnumerable
 {
@@ -12,22 +11,31 @@ namespace CsvEnumerable
 
         public CsvEnumerable(StreamReader reader)
         {
-            var header = reader.ReadLine()?.Split(",");
+            string[] fieldNames = reader.ReadLine()?.Split(",");
+
+            if (fieldNames == null)
+            {
+                return;
+            }
 
             while (!reader.EndOfStream)
             {
-                var line = reader.ReadLine()?.Split(",");
+                string[] line = reader.ReadLine()?.Split(",");
+
+                if (line == null)
+                {
+                    continue;
+                }
+
                 var record = (T)Activator.CreateInstance(typeof(T));
 
-                if (line != null && header != null)
+                for (var i = 0; i < line.Length; i++)
                 {
-                    for (var i = 0; i < line.Length; i++)
+                    var propertyInfo = record.GetType().GetProperty(fieldNames[i]);
+                    
+                    if (propertyInfo != null && !string.IsNullOrEmpty(line[i]))
                     {
-                        var propertyInfo = record.GetType().GetProperty(header[i]);
-                        if (propertyInfo != null)
-                        {
-                            propertyInfo.SetValue(record, line[i]);
-                        }
+                        propertyInfo.SetValue(record, Convert.ChangeType(line[i], propertyInfo.PropertyType));
                     }
                 }
 
